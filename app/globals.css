@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Base — nunca preto puro. #0A0E14 tem azul suficiente para não achatar. */
+  --void: #0a0e14;
+  --hull: #10161f;
+  --hull-lift: #161e29;
+  --rule: #202b38;
+  --rule-lit: #2e3e4f;
+
+  /* Texto */
+  --bone: #dce3eb;
+  --graphite: #7c8b9c;
+  --slate: #4c5a6b;
+
+  /* Acento único — azul de sinal. Só para interação e foco. */
+  --signal: #4c9ef5;
+  --signal-dim: #1e3a5c;
+
+  /* Severidade — convenção, não criatividade. */
+  --sev-crit: #e5484d;
+  --sev-high: #f2761b;
+  --sev-med: #d9a227;
+  --sev-low: #64748b;
+  --sev-ok: #2fa46a;
+
+  --space: 4px;
+  --radius: 2px;
+  --radius-panel: 0px;
+  --border: 1px solid var(--rule);
+  --focus: 0 0 0 1px var(--void), 0 0 0 3px var(--signal);
+}
+
+* {
+  border-color: var(--rule);
+}
+
+body {
+  background: var(--void);
+  color: var(--bone);
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
