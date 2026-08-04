@@ -21,12 +21,13 @@ export interface ScanSummary {
   counts: Record<Severity, number>;
 }
 
-function computeScore(counts: Record<Severity, number>): number {
+/** Fórmula publicada na secção 6.4 do PROJECT_SPEC — reutilizada por "Verificar correções" (verify-fixes-action.ts) para recalcular o score sem correr o scan completo. */
+export function computeScore(counts: Record<Severity, number>): number {
   const penalty = counts.critical * 20 + counts.high * 8 + counts.medium * 3 + counts.low * 1;
   return Math.max(0, 100 - penalty);
 }
 
-function countBySeverity(findings: Finding[]): Record<Severity, number> {
+export function countBySeverity(findings: Finding[]): Record<Severity, number> {
   const counts: Record<Severity, number> = { critical: 0, high: 0, medium: 0, low: 0 };
   for (const f of findings) counts[f.severity]++;
   return counts;

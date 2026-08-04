@@ -1,19 +1,10 @@
 "use server";
 
-import postgres from "postgres";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { decryptCredentials } from "@/lib/crypto/encrypt";
-import { postgresByteaToBuffer } from "@/lib/supabase/bytea";
-import { SupabaseAnonRestClient } from "@/lib/rules/anon-rest-client";
 import { runScan } from "@/lib/scan/run-scan";
-import type { ScanContext } from "@/lib/rules/types";
-
-interface StoredCredentials {
-  connectionString: string;
-  anonKey: string;
-}
+import { openProjectScanContext } from "@/lib/scan/context";
 
 /**
  * Dispara um scan síncrono, dentro do próprio request (cabe no maxDuration
@@ -41,33 +32,13 @@ export async function triggerScan(projectId: string) {
   }
 
   const admin = createAdminClient();
-  const { data: project } = await admin
-    .from("projects")
-    .select("id, project_ref, encrypted_credentials")
-    .eq("id", projectId)
-    .single();
 
-  if (!project?.encrypted_credentials) {
-    await admin.from("scans").update({ status: "failed", error_message: "Sem credenciais guardadas." }).eq("id", scan.id);
-    redirect(`/app/projects/${projectId}/scans/${scan.id}`);
-  }
-
-  const credentials = JSON.parse(
-    decryptCredentials(postgresByteaToBuffer(project.encrypted_credentials as unknown as string)),
-  ) as StoredCredentials;
-
-  const sql = postgres(credentials.connectionString, { max: 1, idle_timeout: 20 });
-
+  let close: (() => Promise<void>) | null = null;
   try {
-    const ctx: ScanContext = {
-      admin: sql,
-      anonRest: new SupabaseAnonRestClient(project.project_ref, credentials.anonKey),
-      projectRef: project.project_ref,
-      verifiedDomain: null, // CLIENT-001/002 exigem OAuth ou um passo explícito extra — fora do Fase 1 síncrono
-      mgmtToken: null, // AUTH-001/EF-001 exigem OAuth — ver ScanContext.skippedRuleIds no relatório
-    };
+    const opened = await openProjectScanContext(projectId);
+    close = opened.close;
 
-    const summary = await runScan(ctx);
+    const summary = await runScan(opened.ctx);
 
     if (summary.findings.length > 0) {
       await admin.from("findings").insert(
@@ -109,7 +80,7 @@ export async function triggerScan(projectId: string) {
       .update({ status: "failed", error_message: err instanceof Error ? err.message : "Erro desconhecido" })
       .eq("id", scan.id);
   } finally {
-    await sql.end({ timeout: 5 });
+    if (close) await close();
   }
 
   redirect(`/app/projects/${projectId}/scans/${scan.id}`);

@@ -51,7 +51,12 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
         </p>
       )}
 
-      <h2 className="font-data text-label uppercase tracking-[0.12em] text-graphite mb-2">Scans</h2>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="font-data text-label uppercase tracking-[0.12em] text-graphite">Scans</h2>
+        <Link href={`/app/projects/${project.id}/history`} className="font-data text-data text-signal hover:underline">
+          Ver histórico de score →
+        </Link>
+      </div>
       {scans && scans.length > 0 ? (
         <div className="flex flex-col">
           {scans.map((scan) => (

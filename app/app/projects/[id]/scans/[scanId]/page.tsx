@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ReportView } from "./report-view";
+import { CopySqlButton } from "./copy-sql-button";
+import { VerifyFixesButton } from "./verify-fixes-button";
 import type { FindingViewModel } from "./finding-row";
 
 export default async function ScanReportPage({
@@ -63,10 +65,15 @@ export default async function ScanReportPage({
           <span className="text-sev-med">██░░ {scan.medium_count}</span>
           <span className="text-sev-low">█░░░ {scan.low_count}</span>
         </div>
-        <div className="ml-auto font-data text-body-sm text-graphite">
-          {scan.status} · {scan.findings_count} achados
+        <div className="ml-auto flex items-center gap-2">
+          <VerifyFixesButton projectId={id} scanId={scanId} />
+          <CopySqlButton findings={findings} />
         </div>
       </div>
+
+      <p className="font-data text-body-sm text-graphite mb-4">
+        {scan.status} · {scan.findings_count} achados
+      </p>
 
       <ReportView findings={findings} />
     </div>
