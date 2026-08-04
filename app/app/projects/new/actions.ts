@@ -15,7 +15,7 @@ export interface ConnectProjectState {
  * Cria o projeto em estado "pending" — NUNCA marca `ownership_verified_at`
  * aqui. A regra inegociável da secção 0 do PROJECT_SPEC exige prova real de
  * propriedade (ficheiro well-known), que só acontece em
- * app/app/projects/[id]/verify/actions.ts depois deste passo. Sem isso,
+ * app/app/p/[id]/verify/actions.ts depois deste passo. Sem isso,
  * qualquer pessoa podia colar credenciais de um projeto que não é dela.
  *
  * Credenciais guardadas: connection string direta (para o motor de regras
@@ -73,5 +73,5 @@ export async function connectProject(_prev: ConnectProjectState, formData: FormD
     .update({ encrypted_credentials: bufferToPostgresBytea(encrypted), verified_domain: domain })
     .eq("id", project.id);
 
-  redirect(`/app/projects/${project.id}/verify`);
+  redirect(`/app/p/${project.id}/verify`);
 }

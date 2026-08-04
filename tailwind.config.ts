@@ -6,6 +6,25 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Canónicos v2 — docs/design-system-v2.md § 2.
+        bg: "var(--bg)",
+        surface: "var(--surface)",
+        "surface-2": "var(--surface-2)",
+        overlay: "var(--overlay)",
+        border: "var(--border)",
+        "border-str": "var(--border-str)",
+        fg: "var(--fg)",
+        "fg-muted": "var(--fg-muted)",
+        "fg-subtle": "var(--fg-subtle)",
+        accent: "var(--accent)",
+        "accent-bg": "var(--accent-bg)",
+        crit: "var(--crit)",
+        high: "var(--high)",
+        med: "var(--med)",
+        low: "var(--low)",
+        ok: "var(--ok)",
+
+        // Aliases v1 — mantidos até os ecrãs serem migrados (passos 2–8).
         void: "var(--void)",
         hull: "var(--hull)",
         "hull-lift": "var(--hull-lift)",
@@ -49,6 +68,8 @@ const config: Config = {
       borderRadius: {
         DEFAULT: "var(--radius)",
         panel: "var(--radius-panel)",
+        sm: "var(--radius-sm)",
+        md: "var(--radius-md)",
       },
       boxShadow: {
         focus: "var(--focus)",

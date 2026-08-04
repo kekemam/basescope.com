@@ -13,7 +13,7 @@ interface StoredCredentials {
 /**
  * Descriptografa as credenciais guardadas e abre uma ligação Postgres de
  * curta duração (`max: 1`) — usada tanto pelo scan completo
- * (app/app/projects/[id]/actions.ts) como por "Verificar correções". O
+ * (app/app/p/[id]/actions.ts) como por "Verificar correções". O
  * chamador é responsável por invocar `close()` no `finally`.
  */
 export async function openProjectScanContext(

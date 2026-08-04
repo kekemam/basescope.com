@@ -3,43 +3,61 @@
 @tailwind utilities;
 
 :root {
-  /* Base — nunca preto puro. #0A0E14 tem azul suficiente para não achatar. */
-  --void: #0a0e14;
-  --hull: #10161f;
-  --hull-lift: #161e29;
-  --rule: #202b38;
-  --rule-lit: #2e3e4f;
+  /* docs/design-system-v2.md § 2 — neutros mais quentes, densidade Supabase. */
+  --bg: #131619;
+  --surface: #181b1e;
+  --surface-2: #1e2225;
+  --overlay: #202529;
+  --border: #2a2f34;
+  --border-str: #3a4147;
 
-  /* Texto */
-  --bone: #dce3eb;
-  --graphite: #7c8b9c;
-  --slate: #4c5a6b;
+  --fg: #ededed;
+  --fg-muted: #8b949e;
+  --fg-subtle: #5c6570;
 
-  /* Acento único — azul de sinal. Só para interação e foco. */
-  --signal: #4c9ef5;
-  --signal-dim: #1e3a5c;
+  --accent: #4c9ef5; /* não verde — independência de marca (Supabase usa #3ECF8E) */
+  --accent-bg: #16324d;
 
-  /* Severidade — convenção, não criatividade. */
-  --sev-crit: #e5484d;
-  --sev-high: #f2761b;
-  --sev-med: #d9a227;
-  --sev-low: #64748b;
-  --sev-ok: #2fa46a;
+  --crit: #e5484d;
+  --high: #f2761b;
+  --med: #d9a227;
+  --low: #64748b;
+  --ok: #2fa46a;
 
-  --space: 4px;
-  --radius: 2px;
-  --radius-panel: 0px;
-  --border: 1px solid var(--rule);
-  --focus: 0 0 0 1px var(--void), 0 0 0 3px var(--signal);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --focus: 0 0 0 1px var(--bg), 0 0 0 3px var(--accent);
+
+  /* Aliases v1 → v2. Mantidos enquanto os componentes antigos (rail v1,
+   * severity-bar, score-bar, páginas ainda por migrar) não passam pelos
+   * passos 2–8 do design-system-v2.md — ver docs/design-system-v2.md § 12.
+   * Remover assim que a migração de cada ecrã estiver feita. */
+  --void: var(--bg);
+  --hull: var(--surface);
+  --hull-lift: var(--surface-2);
+  --rule: var(--border);
+  --rule-lit: var(--border-str);
+  --bone: var(--fg);
+  --graphite: var(--fg-muted);
+  --slate: var(--fg-subtle);
+  --signal: var(--accent);
+  --signal-dim: var(--accent-bg);
+  --sev-crit: var(--crit);
+  --sev-high: var(--high);
+  --sev-med: var(--med);
+  --sev-low: var(--low);
+  --sev-ok: var(--ok);
+  --radius: var(--radius-sm);
+  --radius-panel: var(--radius-md);
 }
 
 * {
-  border-color: var(--rule);
+  border-color: var(--border);
 }
 
 body {
-  background: var(--void);
-  color: var(--bone);
+  background: var(--bg);
+  color: var(--fg);
 }
 
 :focus-visible {

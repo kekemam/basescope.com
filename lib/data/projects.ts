@@ -19,6 +19,40 @@ export async function listProjectsForCurrentUser(): Promise<ProjectSummary[]> {
   return data ?? [];
 }
 
+export interface ProjectCardData extends ProjectSummary {
+  criticalCount: number;
+  highCount: number;
+  mediumCount: number;
+  lowCount: number;
+}
+
+/** Card da grelha de /app — inclui a contagem de severidade do último scan concluído. */
+export async function listProjectsWithLatestScan(): Promise<ProjectCardData[]> {
+  const supabase = await createClient();
+  const projects = await listProjectsForCurrentUser();
+
+  return Promise.all(
+    projects.map(async (project) => {
+      const { data: scan } = await supabase
+        .from("scans")
+        .select("critical_count, high_count, medium_count, low_count")
+        .eq("project_id", project.id)
+        .eq("status", "done")
+        .order("started_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      return {
+        ...project,
+        criticalCount: scan?.critical_count ?? 0,
+        highCount: scan?.high_count ?? 0,
+        mediumCount: scan?.medium_count ?? 0,
+        lowCount: scan?.low_count ?? 0,
+      };
+    }),
+  );
+}
+
 export async function getProject(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase

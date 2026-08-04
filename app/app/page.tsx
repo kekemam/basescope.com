@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { listProjectsForCurrentUser } from "@/lib/data/projects";
+import { ProjectCard } from "@/components/project-card";
+import { listProjectsWithLatestScan } from "@/lib/data/projects";
 
 export default async function DashboardPage() {
-  const projects = await listProjectsForCurrentUser();
+  const projects = await listProjectsWithLatestScan();
 
   if (projects.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
-        <p className="font-prosa text-body text-bone">Nenhum projeto ligado.</p>
-        <p className="font-prosa text-body text-graphite max-w-sm">
+        <p className="font-prosa text-body text-fg">Nenhum projeto ligado.</p>
+        <p className="font-prosa text-body text-fg-muted max-w-sm">
           Liga o teu projeto Supabase e recebes o primeiro relatório em menos de dois minutos.
         </p>
         <Link href="/app/projects/new">
@@ -21,10 +22,18 @@ export default async function DashboardPage() {
 
   return (
     <div className="px-6 py-6">
-      <h1 className="font-display text-display-l text-bone mb-4">Projetos</h1>
-      <p className="font-prosa text-body text-graphite">
-        Seleciona um projeto no rail à esquerda para ver o relatório mais recente.
-      </p>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="font-display text-display-l text-fg">Projetos</h1>
+        <Link href="/app/projects/new">
+          <Button variant="primary">+ ligar projeto</Button>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {projects.map((project) => (
+          <ProjectCard key={project.id} project={project} />
+        ))}
+      </div>
     </div>
   );
 }
