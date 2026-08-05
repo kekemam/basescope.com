@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendWelcomeEmail } from "@/lib/email/resend";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -41,6 +42,8 @@ export async function GET(request: Request) {
     }
 
     await admin.from("memberships").insert({ org_id: org.id, user_id: data.user.id, role: "owner" });
+
+    if (data.user.email) await sendWelcomeEmail(data.user.email);
   }
 
   return NextResponse.redirect(`${origin}/app`);

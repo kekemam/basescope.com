@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { runScan } from "@/lib/scan/run-scan";
 import { openProjectScanContext } from "@/lib/scan/context";
+import { getProjectOwnerEmail } from "@/lib/email/notify-org";
+import { sendScanReadyEmail, sendNewCriticalFindingEmail } from "@/lib/email/resend";
 
 /**
  * Dispara um scan síncrono, dentro do próprio request (cabe no maxDuration
@@ -32,6 +34,19 @@ export async function triggerScan(projectId: string) {
   }
 
   const admin = createAdminClient();
+
+  // Achados críticos já conhecidos ANTES deste scan — para diferenciar
+  // "novo achado crítico" (dispara email) de "ainda o mesmo de sempre"
+  // (secção 6.3: "apenas quando há finding novo... nada de emails 'está
+  // tudo bem'"). Tem de ser lido antes de inserir os achados do scan atual.
+  const { data: project } = await admin.from("projects").select("name").eq("id", projectId).single();
+  const { data: previouslyOpenCritical } = await admin
+    .from("findings")
+    .select("rule_id, resource_name")
+    .eq("project_id", projectId)
+    .eq("severity", "critical")
+    .eq("status", "open");
+  const previouslyKnownKeys = new Set((previouslyOpenCritical ?? []).map((f) => `${f.rule_id}::${f.resource_name}`));
 
   let close: (() => Promise<void>) | null = null;
   try {
@@ -74,6 +89,21 @@ export async function triggerScan(projectId: string) {
       .eq("id", scan.id);
 
     await admin.from("projects").update({ last_scan_at: new Date().toISOString(), current_score: summary.score }).eq("id", projectId);
+
+    const ownerEmail = await getProjectOwnerEmail(projectId);
+    if (ownerEmail && project) {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+      const reportUrl = `${siteUrl}/app/p/${projectId}/achados`;
+
+      await sendScanReadyEmail(ownerEmail, project.name, summary.score, summary.counts.critical, reportUrl);
+
+      const newCritical = summary.findings.filter(
+        (f) => f.severity === "critical" && !previouslyKnownKeys.has(`${f.ruleId}::${f.resourceName}`),
+      );
+      for (const f of newCritical) {
+        await sendNewCriticalFindingEmail(ownerEmail, project.name, f.ruleId, f.resourceName, reportUrl);
+      }
+    }
   } catch (err) {
     await admin
       .from("scans")

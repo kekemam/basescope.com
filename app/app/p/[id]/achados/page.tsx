@@ -47,5 +47,13 @@ export default async function AchadosPage({ params }: { params: Promise<{ id: st
   const exposureConfirmed =
     findings.find((f) => f.ruleId === "ANON-001" && f.severity === "critical" && f.status === "open") ?? null;
 
-  return <AchadosView projectId={id} findings={findings} exposureConfirmed={exposureConfirmed} />;
+  // Paywall (PROJECT_SPEC § 6.2): no Free, revela na íntegra só os 3
+  // primeiros achados críticos — o resto fica desfocado, mas a contagem
+  // total nunca se esconde.
+  const { data: org } = await supabase.from("organizations").select("plan").limit(1).maybeSingle();
+  const isPaywalled = (org?.plan ?? "free") === "free";
+
+  return (
+    <AchadosView projectId={id} findings={findings} exposureConfirmed={exposureConfirmed} isPaywalled={isPaywalled} />
+  );
 }

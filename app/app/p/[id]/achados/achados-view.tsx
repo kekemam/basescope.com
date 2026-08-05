@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 import type { ColumnDef } from "@tanstack/react-table";
 import { SeverityBar } from "@/components/severity-bar";
@@ -44,10 +45,12 @@ export function AchadosView({
   projectId,
   findings,
   exposureConfirmed,
+  isPaywalled,
 }: {
   projectId: string;
   findings: FindingViewModel[];
   exposureConfirmed: FindingViewModel | null;
+  isPaywalled: boolean;
 }) {
   const router = useRouter();
   const [search, setSearch] = useState("");
@@ -63,6 +66,15 @@ export function AchadosView({
     () => findings.filter((f) => f.severity === "critical" && f.status === "open").length,
     [findings],
   );
+
+  // Paywall (PROJECT_SPEC § 6.2): no Free, só os 3 primeiros críticos vêm
+  // por inteiro — a ordem já chega ordenada por severidade da query.
+  const unlockedIds = useMemo(() => {
+    if (!isPaywalled) return null;
+    return new Set(findings.filter((f) => f.severity === "critical").slice(0, 3).map((f) => f.id));
+  }, [findings, isPaywalled]);
+  const isLocked = (f: FindingViewModel) => unlockedIds !== null && !unlockedIds.has(f.id);
+  const lockedCount = unlockedIds ? findings.filter((f) => isLocked(f)).length : 0;
 
   const filtered = useMemo(() => {
     let rows = findings;
@@ -99,13 +111,15 @@ export function AchadosView({
       const currentIndex = activeFinding ? filtered.findIndex((f) => f.id === activeFinding.id) : -1;
 
       if (e.key === "j") {
-        const next = filtered[Math.min(filtered.length - 1, currentIndex + 1)];
+        // No plano Free, j/k salta os achados bloqueados em vez de abrir um
+        // toast a cada tecla — só Enter numa linha bloqueada mostra o upsell.
+        const next = filtered.slice(currentIndex + 1).find((f) => !isLocked(f));
         if (next) setActiveFinding(next);
       } else if (e.key === "k") {
-        const prev = filtered[Math.max(0, currentIndex - 1)];
+        const prev = [...filtered.slice(0, Math.max(0, currentIndex))].reverse().find((f) => !isLocked(f));
         if (prev) setActiveFinding(prev);
       } else if (e.key === "Enter" && !activeFinding && filtered[0]) {
-        setActiveFinding(filtered[0]);
+        openFinding(filtered[0]);
       } else if (e.key === "c" && activeFinding?.remediationSql) {
         navigator.clipboard.writeText(activeFinding.remediationSql);
       } else if (e.key === "i" && activeFinding) {
@@ -115,6 +129,9 @@ export function AchadosView({
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
+    // isLocked/openFinding são recriadas a cada render mas dependem só de
+    // `findings`/`isPaywalled`, já cobertos indiretamente por `filtered`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFinding, filtered, router]);
 
   const columns: ColumnDef<FindingViewModel>[] = [
@@ -125,11 +142,21 @@ export function AchadosView({
       header: "Severidade",
       cell: ({ row }) => <SeverityBar status={row.original.severity} showLabel={false} />,
     },
-    { id: "rule", size: 96, header: "Regra", cell: ({ row }) => row.original.ruleId },
+    {
+      id: "rule",
+      size: 96,
+      header: "Regra",
+      cell: ({ row }) => (isLocked(row.original) ? <span className="blur-sm select-none">XXX-000</span> : row.original.ruleId),
+    },
     {
       id: "resource",
       header: "Recurso",
-      cell: ({ row }) => <span className="truncate block">{row.original.resourceName}</span>,
+      cell: ({ row }) =>
+        isLocked(row.original) ? (
+          <span className="blur-sm select-none truncate block">████████████████</span>
+        ) : (
+          <span className="truncate block">{row.original.resourceName}</span>
+        ),
     },
     {
       id: "status",
@@ -143,6 +170,16 @@ export function AchadosView({
     ...[...severityFilter].map((s) => ({ key: `sev:${s}`, label: `severidade: ${s}` })),
     ...[...statusFilter].map((s) => ({ key: `status:${s}`, label: `estado: ${s}` })),
   ];
+
+  function openFinding(f: FindingViewModel) {
+    if (isLocked(f)) {
+      toast("Achado bloqueado no plano Free", {
+        action: { label: "Ver planos", onClick: () => router.push("/app/org/faturacao") },
+      });
+      return;
+    }
+    setActiveFinding(f);
+  }
 
   function removeChip(key: string) {
     if (key.startsWith("sev:")) {
@@ -162,9 +199,22 @@ export function AchadosView({
             <span className="font-data text-data text-crit uppercase tracking-[0.04em]">
               EXPOSIÇÃO CONFIRMADA · {exposureConfirmed.resourceName}
             </span>
-            <Button variant="danger" onClick={() => setActiveFinding(exposureConfirmed)}>
+            <Button variant="danger" onClick={() => openFinding(exposureConfirmed)}>
               Corrigir agora →
             </Button>
+          </div>
+        </InlineBanner>
+      )}
+
+      {lockedCount > 0 && (
+        <InlineBanner tone="med" className="mx-4 mt-4">
+          <div className="flex items-center justify-between gap-4">
+            <span className="font-data text-data text-med">
+              {lockedCount} achado(s) bloqueado(s) no plano Free — só os 3 primeiros críticos ficam visíveis por inteiro.
+            </span>
+            <Link href="/app/org/faturacao">
+              <Button variant="primary">Desbloquear {lockedCount} achados</Button>
+            </Link>
           </div>
         </InlineBanner>
       )}
@@ -259,7 +309,7 @@ export function AchadosView({
             columns={columns}
             data={filtered}
             getRowId={(f) => f.id}
-            onRowClick={(f) => setActiveFinding(f)}
+            onRowClick={openFinding}
             activeRowId={activeFinding?.id}
             bulkActions={(selected) => (
               <>
