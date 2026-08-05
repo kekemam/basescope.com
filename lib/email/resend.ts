@@ -1,7 +1,12 @@
 import "server-only";
 import { Resend } from "resend";
 
-const FROM = "Basescope <notificacoes@basescope.com>";
+// Temporário: basescope.com ainda não está comprado nem verificado no
+// Resend. onboarding@resend.dev é o domínio sandbox — funciona sem
+// verificação, mas só entrega no email da própria conta Resend. Troca
+// para um domínio verificado (ex. notificacoes@basescope.com) assim que
+// existir, antes de teres utilizadores a sério.
+const FROM = "Basescope <onboarding@resend.dev>";
 
 function client(): Resend {
   const key = process.env.RESEND_API_KEY;
