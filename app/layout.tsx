@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Martian_Mono, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { ThemeScript } from "@/components/theme/theme-script";
 import "./globals.css";
 
 const martianMono = Martian_Mono({
@@ -29,10 +30,14 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-PT" className="dark">
+    // O ThemeScript pode mudar data-theme para "light" antes da hidratação
+    // (ver components/theme/theme-script.tsx) — suppressHydrationWarning
+    // evita o aviso de mismatch nesse único atributo, controlado por design.
+    <html lang="pt-PT" data-theme="dark" suppressHydrationWarning>
       <body
         className={`${martianMono.variable} ${ibmPlexMono.variable} ${ibmPlexSans.variable} font-prosa`}
       >
+        <ThemeScript />
         {children}
       </body>
     </html>

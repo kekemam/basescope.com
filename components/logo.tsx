@@ -3,9 +3,9 @@ import { cn } from "@/lib/cn";
 
 /**
  * Marca do produto. O ficheiro public/logo-mark.svg é uma aproximação
- * geométrica feita à mão a partir do PNG partilhado — não uma vetorização
- * exata. Substituir por um export real (Figma/Illustrator) assim que
- * disponível.
+ * geométrica feita à mão a partir da imagem partilhada (fita azul dobrada
+ * em "S", faceta escura na dobra) — não uma vetorização exata. Substituir
+ * por um export real (SVG/Figma) assim que disponível.
  */
 export function Logo({ withWordmark = true, className }: { withWordmark?: boolean; className?: string }) {
   return (

@@ -4,6 +4,7 @@ import { SecondaryPanel, type NavSection } from "@/components/nav/secondary-pane
 import { Breadcrumbs } from "@/components/nav/breadcrumbs";
 import { ProjectSwitcher } from "@/components/nav/project-switcher";
 import { Tabs } from "@/components/ui/tabs";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { listProjectsForCurrentUser } from "@/lib/data/projects";
 
 export default async function ProjectLayout({
@@ -42,6 +43,7 @@ export default async function ProjectLayout({
   ];
 
   const tabs = [
+    { href: `/app/p/${id}`, label: "Dashboard" },
     { href: `/app/p/${id}/achados`, label: "Achados" },
     { href: `/app/p/${id}/historico`, label: "Histórico" },
     { href: `/app/p/${id}/regras`, label: "Regras" },
@@ -63,6 +65,7 @@ export default async function ProjectLayout({
           <div className="flex items-center gap-3">
             <ProjectSwitcher projects={projects} current={projects.find((p) => p.id === id)} />
             <span className="font-data text-body-sm text-fg-subtle">⌘K</span>
+            <ThemeToggle />
           </div>
         </header>
         <Tabs items={tabs} />

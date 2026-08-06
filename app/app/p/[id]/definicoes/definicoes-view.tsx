@@ -16,10 +16,26 @@ interface Props {
   projectName: string;
   connectionStatus: string;
   verifiedDomain: string | null;
+  plan: string;
+  nextScanJob: { status: string; scheduledFor: string } | null;
   notificationSettings: NotificationSettingsInput | null;
 }
 
-export function DefinicoesView({ projectId, projectName, connectionStatus, verifiedDomain, notificationSettings }: Props) {
+const PLAN_CADENCE: Record<string, string> = {
+  solo: "semanal",
+  pro: "diária",
+  agency: "diária",
+};
+
+export function DefinicoesView({
+  projectId,
+  projectName,
+  connectionStatus,
+  verifiedDomain,
+  plan,
+  nextScanJob,
+  notificationSettings,
+}: Props) {
   const router = useRouter();
   const [notif, setNotif] = useState<NotificationSettingsInput>(
     notificationSettings ?? { emailEnabled: true, slackWebhookUrl: "", discordWebhookUrl: "", notifyOn: "high_and_above" },
@@ -107,11 +123,31 @@ export function DefinicoesView({ projectId, projectName, connectionStatus, verif
           </Button>
         </PanelTabsContent>
 
-        <PanelTabsContent value="agendamento" className="pt-4">
-          <p className="font-prosa text-body text-fg-muted">
-            Scans agendados (pg_cron) ainda não estão disponíveis — Fase 4 do PROJECT_SPEC. Por agora, corre scans
-            manualmente em Achados.
-          </p>
+        <PanelTabsContent value="agendamento" className="pt-4 flex flex-col gap-2">
+          {PLAN_CADENCE[plan] ? (
+            <>
+              <p className="font-data text-data text-fg">
+                Cadência do plano: <span className="text-accent">{PLAN_CADENCE[plan]}</span>
+              </p>
+              {nextScanJob ? (
+                <p className="font-data text-body-sm text-fg-muted">
+                  Próximo scan agendado: {new Date(nextScanJob.scheduledFor).toLocaleString("pt-PT")} ({nextScanJob.status === "running" ? "a correr" : "em fila"})
+                </p>
+              ) : (
+                <p className="font-data text-body-sm text-fg-muted">
+                  Nenhum scan agendado em fila neste momento — o próximo é criado automaticamente quando for devido.
+                </p>
+              )}
+              <p className="font-prosa text-body-sm text-fg-subtle max-w-md mt-1">
+                Scans agendados correm em segundo plano (pg_cron); só alertam por email/Slack/Discord quando há achado
+                novo — nunca um &ldquo;está tudo bem&rdquo;.
+              </p>
+            </>
+          ) : (
+            <p className="font-prosa text-body text-fg-muted max-w-md">
+              Scans agendados são um extra dos planos pagos. No Free, corre scans manualmente em Achados.
+            </p>
+          )}
         </PanelTabsContent>
 
         <PanelTabsContent value="apagar" className="pt-4">

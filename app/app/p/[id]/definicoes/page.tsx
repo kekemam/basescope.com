@@ -8,7 +8,7 @@ export default async function DefinicoesPage({ params }: { params: Promise<{ id:
 
   const { data: project } = await supabase
     .from("projects")
-    .select("id, name, connection_status, verified_domain")
+    .select("id, name, org_id, connection_status, verified_domain")
     .eq("id", id)
     .single();
   if (!project) notFound();
@@ -19,12 +19,25 @@ export default async function DefinicoesPage({ params }: { params: Promise<{ id:
     .eq("project_id", id)
     .maybeSingle();
 
+  const { data: org } = await supabase.from("organizations").select("plan").eq("id", project.org_id).maybeSingle();
+
+  const { data: nextJob } = await supabase
+    .from("scan_jobs")
+    .select("status, scheduled_for")
+    .eq("project_id", id)
+    .in("status", ["queued", "running"])
+    .order("scheduled_for", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
   return (
     <DefinicoesView
       projectId={project.id}
       projectName={project.name}
       connectionStatus={project.connection_status}
       verifiedDomain={project.verified_domain}
+      plan={org?.plan ?? "free"}
+      nextScanJob={nextJob ? { status: nextJob.status, scheduledFor: nextJob.scheduled_for } : null}
       notificationSettings={
         notif
           ? {

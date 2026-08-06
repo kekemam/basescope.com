@@ -2,7 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+:root,
+:root[data-theme="dark"] {
   /* docs/design-system-v2.md § 2 — neutros mais quentes, densidade Supabase. */
   --bg: #131619;
   --surface: #181b1e;
@@ -23,7 +24,34 @@
   --med: #d9a227;
   --low: #64748b;
   --ok: #2fa46a;
+}
 
+/* Tema claro — opcional, ativado por components/theme/theme-toggle.tsx via
+ * data-theme="light" em <html> (persistido em localStorage). Mesmo acento
+ * (#4c9ef5 escurecido para contraste em fundo branco), nunca verde. */
+:root[data-theme="light"] {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface-2: #eef0f3;
+  --overlay: #ffffff;
+  --border: #e1e4e9;
+  --border-str: #c9cfd6;
+
+  --fg: #14181c;
+  --fg-muted: #57606b;
+  --fg-subtle: #848d97;
+
+  --accent: #2f78d6;
+  --accent-bg: #e7f0fc;
+
+  --crit: #cf333b;
+  --high: #b85e09;
+  --med: #96700f;
+  --low: #5b6674;
+  --ok: #1f8a54;
+}
+
+:root {
   --radius-sm: 4px;
   --radius-md: 6px;
   --focus: 0 0 0 1px var(--bg), 0 0 0 3px var(--accent);
@@ -58,6 +86,13 @@
 body {
   background: var(--bg);
   color: var(--fg);
+  transition: background-color 120ms ease-out, color 120ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
 }
 
 :focus-visible {
