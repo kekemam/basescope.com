@@ -18,7 +18,7 @@ const ITEMS: RailItem[] = [
   { href: "/app/alertas", glyph: "⚑", label: "Alertas" },
   { href: "/app/historico", glyph: "⏱", label: "Histórico" },
   { href: "/app/definicoes", glyph: "⚙", label: "Definições" },
-  { href: "/app/docs", glyph: "⌾", label: "Documentação" },
+  { href: "/docs", glyph: "⌾", label: "Documentação" },
 ];
 
 /** Rail de 48px, sempre visível — docs/design-system-v2.md § 3. */

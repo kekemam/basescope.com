@@ -1,6 +1,8 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/rate-limit/check";
+import { getClientIp } from "@/lib/rate-limit/ip";
 
 export interface SignupState {
   status: "idle" | "sent" | "error";
@@ -14,6 +16,10 @@ export async function requestSignup(_prev: SignupState, formData: FormData): Pro
   if (!email || !orgName) {
     return { status: "error", message: "Preenche o nome da organização e o email." };
   }
+
+  const ip = await getClientIp();
+  const { allowed } = await checkRateLimit(`otp:${ip}`, 5, 600);
+  if (!allowed) return { status: "error", message: "Demasiados pedidos. Tenta novamente daqui a alguns minutos." };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({

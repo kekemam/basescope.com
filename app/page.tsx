@@ -3,7 +3,7 @@ import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { SeverityBar } from "@/components/severity-bar";
 import { LegalFooter } from "@/components/legal-footer";
-import { getPublicStats } from "@/lib/data/public-stats";
+import { getPublicStats, getSelfScanScore } from "@/lib/data/public-stats";
 
 // Sem isto, o Next tentava pré-renderizar a página como estática no build
 // e congelava a contagem de projetos analisados no valor de build time.
@@ -53,6 +53,7 @@ const FAQ: Array<{ q: string; a: string }> = [
 
 export default async function LandingPage() {
   const stats = await getPublicStats();
+  const selfScanScore = await getSelfScanScore();
 
   return (
     <div className="flex min-h-screen flex-col bg-bg">
@@ -89,6 +90,16 @@ export default async function LandingPage() {
               ? `${stats.projectsAnalyzed} projetos analisados · ${stats.percentWithCritical}% tinham pelo menos um achado crítico`
               : "Ainda não temos dados agregados — sê um dos primeiros a correr um scan."}
           </p>
+
+          {selfScanScore !== null && (
+            <p className="font-data text-body-sm text-fg-subtle">
+              Corremos o Basescope contra o próprio Basescope todos os dias —{" "}
+              <span className={selfScanScore >= 80 ? "text-ok" : selfScanScore >= 50 ? "text-sev-med" : "text-sev-crit"}>
+                score {selfScanScore}/100
+              </span>
+              .
+            </p>
+          )}
         </section>
 
         <section className="px-6 pb-20 max-w-2xl mx-auto">
