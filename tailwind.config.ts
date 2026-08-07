@@ -42,13 +42,17 @@ const config: Config = {
         "sev-ok": "var(--sev-ok)",
       },
       fontFamily: {
-        display: ["var(--font-martian-mono)"],
+        // Títulos/números em sans bold (não monoespaçado) — grelha de
+        // referência do dashboard. Martian Mono fica só como fallback de
+        // compatibilidade para quem ainda o referencia diretamente.
+        display: ["var(--font-ibm-plex-sans)"],
+        mono: ["var(--font-martian-mono)"],
         data: ["var(--font-ibm-plex-mono)"],
         prosa: ["var(--font-ibm-plex-sans)"],
       },
       fontSize: {
-        "display-xl": ["40px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "600" }],
-        "display-l": ["22px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "500" }],
+        "display-xl": ["36px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
+        "display-l": ["20px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "700" }],
         label: ["11px", { lineHeight: "16px", letterSpacing: "0.12em", fontWeight: "500" }],
         data: ["13px", { lineHeight: "20px", fontWeight: "400" }],
         body: ["14px", { lineHeight: "22px", fontWeight: "400" }],
@@ -70,6 +74,7 @@ const config: Config = {
         panel: "var(--radius-panel)",
         sm: "var(--radius-sm)",
         md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
       },
       boxShadow: {
         focus: "var(--focus)",

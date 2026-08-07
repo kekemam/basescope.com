@@ -38,9 +38,9 @@ function Dot({ color }: { color: string }) {
 
 function Card({ title, info, children }: { title: string; info?: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col rounded-md border border-border bg-surface p-4">
+    <div className="flex flex-col rounded-lg border border-border bg-surface p-5">
       <div className="mb-3 flex items-center gap-1.5">
-        <p className="font-data text-label uppercase text-fg-subtle">{title}</p>
+        <p className="font-prosa text-body-sm font-medium text-fg-subtle">{title}</p>
         {info && <span className="text-fg-subtle" title={info}>ⓘ</span>}
       </div>
       {children}
@@ -69,7 +69,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ id: 
   const { counts, score, totalOpen, okCount, exposureConfirmed, lastScan, recentFindings, categories, activity } = data;
 
   return (
-    <div className="flex flex-col gap-6 p-4">
+    <div className="flex flex-col gap-6 p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-display-l text-fg">Dashboard</h1>
@@ -159,9 +159,9 @@ export default async function DashboardPage({ params }: { params: Promise<{ id: 
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
-        <div className="rounded-md border border-border bg-surface">
+        <div className="rounded-lg border border-border bg-surface">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <p className="font-data text-label uppercase text-fg-subtle">Achados recentes</p>
+            <p className="font-prosa text-body font-medium text-fg">Achados recentes</p>
             <Link href={`/app/p/${id}/achados`} className="font-data text-body-sm text-accent hover:underline">
               Ver todos
             </Link>
@@ -200,8 +200,8 @@ export default async function DashboardPage({ params }: { params: Promise<{ id: 
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="rounded-md border border-border bg-surface p-4">
-            <p className="mb-3 font-data text-label uppercase text-fg-subtle">Principais categorias</p>
+          <div className="rounded-lg border border-border bg-surface p-5">
+            <p className="mb-3 font-prosa text-body font-medium text-fg">Principais categorias</p>
             {categories.length === 0 ? (
               <p className="font-prosa text-body-sm text-fg-muted">Sem achados para agrupar.</p>
             ) : (
@@ -222,9 +222,9 @@ export default async function DashboardPage({ params }: { params: Promise<{ id: 
             </Link>
           </div>
 
-          <div className="rounded-md border border-border bg-surface p-4">
+          <div className="rounded-lg border border-border bg-surface p-5">
             <div className="mb-3 flex items-center justify-between">
-              <p className="font-data text-label uppercase text-fg-subtle">Atividade recente</p>
+              <p className="font-prosa text-body font-medium text-fg">Atividade recente</p>
               <Link href={`/app/p/${id}/historico`} className="font-data text-body-sm text-accent hover:underline">
                 Ver todo o histórico
               </Link>

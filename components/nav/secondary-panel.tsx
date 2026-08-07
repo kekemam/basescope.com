@@ -3,16 +3,34 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LayoutDashboard, ShieldAlert, History, ListChecks, Settings, CreditCard, Users, KeyRound } from "lucide-react";
 import { cn } from "@/lib/cn";
+
+// Ícones de componentes React não são serializáveis entre Server e Client
+// Components — o layout do projeto (Server Component) só pode passar a
+// CHAVE (string); a resolução para o componente lucide real acontece aqui
+// dentro, já em client.
+const ICONS = {
+  dashboard: LayoutDashboard,
+  achados: ShieldAlert,
+  historico: History,
+  regras: ListChecks,
+  definicoes: Settings,
+  faturacao: CreditCard,
+  equipa: Users,
+  api: KeyRound,
+} as const;
+
+export type NavIconKey = keyof typeof ICONS;
 
 export interface NavSection {
   title: string;
-  items: Array<{ href: string; label: string }>;
+  items: Array<{ href: string; label: string; icon?: NavIconKey }>;
 }
 
 const STORAGE_KEY = "basescope:secondary-panel-collapsed";
 
-/** Painel de 220px, colapsável, estado persistido — docs/design-system-v2.md § 3. */
+/** Painel de 220px, colapsável, estado persistido. */
 export function SecondaryPanel({ sections }: { sections: NavSection[] }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
@@ -56,7 +74,7 @@ export function SecondaryPanel({ sections }: { sections: NavSection[] }) {
           «
         </button>
       </div>
-      <nav className="flex flex-col gap-4 px-2 pb-4 overflow-y-auto">
+      <nav className="flex flex-col gap-5 px-2 pb-4 overflow-y-auto">
         {sections.map((section) => (
           <div key={section.title}>
             <p className="px-2 mb-1 font-data text-[11px] uppercase tracking-[0.08em] text-fg-subtle">
@@ -65,15 +83,17 @@ export function SecondaryPanel({ sections }: { sections: NavSection[] }) {
             <div className="flex flex-col">
               {section.items.map((item) => {
                 const active = pathname === item.href;
+                const Icon = item.icon ? ICONS[item.icon] : null;
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "rounded-sm px-2 h-8 flex items-center font-data text-data",
+                      "rounded-md px-2 h-9 flex items-center gap-2.5 font-prosa text-body-sm",
                       active ? "bg-surface-2 text-fg" : "text-fg-muted hover:text-fg hover:bg-surface-2",
                     )}
                   >
+                    {Icon && <Icon size={16} strokeWidth={1.75} className={active ? "text-accent" : ""} />}
                     {item.label}
                   </Link>
                 );

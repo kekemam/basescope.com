@@ -3,9 +3,18 @@
 import { useState } from "react";
 import Link from "next/link";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { ChevronDown } from "lucide-react";
 import { ScoreBar } from "@/components/score-bar";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/cn";
 import type { ProjectSummary } from "@/lib/data/projects";
+
+const STATUS_DOT: Record<string, string> = {
+  connected: "bg-accent",
+  error: "bg-crit",
+  revoked: "bg-crit",
+  pending: "bg-fg-subtle",
+};
 
 export function ProjectSwitcher({ projects, current }: { projects: ProjectSummary[]; current?: ProjectSummary }) {
   const [query, setQuery] = useState("");
@@ -16,12 +25,14 @@ export function ProjectSwitcher({ projects, current }: { projects: ProjectSummar
       <DropdownMenu.Trigger asChild>
         <button
           type="button"
-          className="flex items-center gap-2 rounded-sm px-2 h-8 font-data text-data text-fg hover:bg-surface-2"
+          className="flex items-center gap-2 rounded-full border border-border-str bg-surface pl-2.5 pr-2 h-8 font-prosa text-body-sm text-fg hover:bg-surface-2 shrink-0"
         >
-          {current?.name ?? "Selecionar projeto"}
-          <span className="text-fg-subtle" aria-hidden="true">
-            ▾
-          </span>
+          <span
+            className={cn("h-1.5 w-1.5 rounded-full shrink-0", STATUS_DOT[current?.connection_status ?? ""] ?? "bg-fg-subtle")}
+            aria-hidden="true"
+          />
+          <span className="truncate max-w-[160px]">{current?.name ?? "Selecionar projeto"}</span>
+          <ChevronDown size={14} className="text-fg-subtle shrink-0" />
         </button>
       </DropdownMenu.Trigger>
 
