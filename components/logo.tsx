@@ -2,9 +2,9 @@ import Image from "next/image";
 import { cn } from "@/lib/cn";
 
 /**
- * Marca do produto — hexágono/gema de 3 facetas, a mesma usada na interface
- * de referência do dashboard. public/logo-mark.svg é uma aproximação
- * geométrica feita à mão, não uma vetorização exata.
+ * Marca do produto — fita azul dobrada em "S", faceta escura na dobra.
+ * public/logo-mark.svg e app/icon.svg são uma aproximação geométrica feita
+ * à mão a partir do ícone partilhado, não uma vetorização exata.
  */
 export function Logo({ withWordmark = true, className }: { withWordmark?: boolean; className?: string }) {
   return (
