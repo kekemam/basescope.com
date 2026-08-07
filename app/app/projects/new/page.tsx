@@ -17,6 +17,17 @@ export default function NewProjectPage() {
         Vamos pedir a connection string e a anon key. Nunca guardamos a tua service_role key.
       </p>
 
+      <a href="/api/oauth/supabase/start" className="mb-6 block">
+        <Button type="button" variant="ghost" className="w-full">
+          Ligar com Supabase (OAuth) — prova propriedade automaticamente
+        </Button>
+      </a>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-px flex-1 bg-border" />
+        <span className="font-data text-body-sm text-graphite">ou cola as credenciais</span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
       <form action={formAction} className="flex flex-col gap-4">
         <Field label="Nome do projeto">
           <Input name="name" placeholder="buildflow-prod" required />
