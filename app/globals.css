@@ -51,6 +51,35 @@
   --ok: #1f8a54;
 }
 
+/* Escopo claro forçado, independente do data-theme global — usado só pela
+ * landing page pública (app/page.tsx), que é deliberadamente sempre clara
+ * (referência visual do produto), ao contrário do resto da app que segue
+ * o ThemeToggle. Fundo branco puro em vez do cinza claro do tema global. */
+.landing-light {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f7f7f8;
+  --overlay: #ffffff;
+  --border: #e7e7e9;
+  --border-str: #d4d4d8;
+
+  --fg: #0a0a0b;
+  --fg-muted: #52525b;
+  --fg-subtle: #8b8b93;
+
+  --accent: #1a1a1a;
+  --accent-bg: #f0f0f1;
+
+  --crit: #cf333b;
+  --high: #b85e09;
+  --med: #96700f;
+  --low: #5b6674;
+  --ok: #1f8a54;
+
+  background: var(--bg);
+  color: var(--fg);
+}
+
 :root {
   --radius-sm: 4px;
   --radius-md: 6px;

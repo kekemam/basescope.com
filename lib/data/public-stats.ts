@@ -42,13 +42,34 @@ export async function getPublicStats(): Promise<PublicStats> {
   };
 }
 
+export interface SelfScanScore {
+  score: number;
+  /** Diferença face ao scan concluído anterior — null se só houver um scan até agora. */
+  deltaSincePrevious: number | null;
+}
+
 /** Score real do Basescope contra si mesmo — ver 0011/0012/0013_*.sql para a correção dos achados que este scan encontrou. */
-export async function getSelfScanScore(): Promise<number | null> {
+export async function getSelfScanScore(): Promise<SelfScanScore | null> {
   const admin = createAdminClient();
-  const { data } = await admin
+  const { data: project } = await admin
     .from("projects")
     .select("current_score")
     .eq("id", SELF_SCAN_PROJECT_ID)
     .maybeSingle();
-  return data?.current_score ?? null;
+  if (project?.current_score == null) return null;
+
+  const { data: recentScans } = await admin
+    .from("scans")
+    .select("score")
+    .eq("project_id", SELF_SCAN_PROJECT_ID)
+    .eq("status", "done")
+    .order("started_at", { ascending: false })
+    .limit(2);
+
+  const previous = recentScans && recentScans.length > 1 ? recentScans[1]!.score : null;
+
+  return {
+    score: project.current_score,
+    deltaSincePrevious: previous != null ? project.current_score - previous : null,
+  };
 }
